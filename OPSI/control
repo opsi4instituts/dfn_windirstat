@@ -1,0 +1,71 @@
+[Package]
+version: 1
+depends: 
+incremental: False
+
+[Product]
+type: localboot
+id: dfn_windirstat
+name: WinDirStat
+description: Werkzeug zur Visualisierung und Reduzierung der Speicherplatzbelegung
+advice: 
+version: 1.1.2
+priority: 0
+licenseRequired: False
+productClasses: 
+setupScript: setup32.opsiscript
+uninstallScript: uninstall32.opsiscript
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
+
+[ProductProperty]
+type: unicode
+name: desktopicon
+multivalue: False
+editable: False
+description: Icon on Desktop
+values: ["no", "yes"]
+default: ["no"]
+
+[ProductProperty]
+type: unicode
+name: startmenuentry
+multivalue: False
+editable: False
+description: Startmenu entry (Directory & Link) in 'common-programs'
+values: ["no", "yes"]
+default: ["yes"]
+
+[ProductProperty]
+type: unicode
+name: custom-post-install
+multivalue: False
+editable: False
+description: Define filename for include script in custom directory after installation
+values: ["none", "post-install.opsiinc"]
+default: ["none"]
+
+[ProductProperty]
+type: unicode
+name: custom-post-deinstall
+multivalue: False
+editable: False
+description: Define filename for include script in custom directory after deinstallation
+values: ["none", "post-deinstall.opsiinc"]
+default: ["none"]
+
+[Changelog]
+windirstat (1.1.2-1)
+	* initiales DFN-Repository-Paket
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 29.06.2015
+
+
+
+
+
+
+
+

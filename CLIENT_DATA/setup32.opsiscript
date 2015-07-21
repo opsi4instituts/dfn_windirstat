@@ -1,0 +1,96 @@
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/credits/
+
+[Actions]
+; common Values for (un)installation
+include_insert "common.opsiinc"
+
+if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
+	LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+	isFatalError
+	; Stop process and set installation status to failed
+else
+	if FileExists("%ScriptPath%\delsub32.opsiscript")
+		comment "Start uninstall sub section"
+		Sub "%ScriptPath%\delsub32.opsiscript"
+	endif
+	
+	Message "Installing " + $ProductName$ + " ..."
+	
+	if not ($MSVersion$ = "6.1")
+		Logwarning "Only tested with windows 7! Please report to the maintainer successful installation on other windows versions."		
+	endif
+	if not ($INST_SystemType$ = "64 Bit System")
+		Logwarning "Only tested with 64 bit version! Please report to the maintainer successful installation on other windows versions."
+	endif
+	
+	comment "Copy files"
+	Files_install
+	
+	comment "Test for installation success"
+	;Test if exe file exists
+	if FileExists($PathToExe$)
+		comment "Successful Installation"
+		Registry_install /32Bit
+		
+		Set $DesktopIcon$ = getProductProperty("desktopicon","no")
+		if $DesktopIcon$ = "yes"
+			comment "Create common desktop icon"
+			Linkfolder_install_desktopicon	
+		endif
+
+		Set $StartmenuEntry$ = getProductProperty("startmenuentry","no")
+		if $StartmenuEntry$ = "yes"
+			comment "Create common startmenu entry"
+			Linkfolder_install_startmenu	
+		endif
+
+		comment "include custom post install file"
+		set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
+		if not ($CustomPostInstall$ = "none")
+			if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
+				include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
+			endif
+		endif
+	else
+		logError "After installation $PathToExe$ not found"
+		isFatalError
+	endif
+endif
+
+[Files_install]
+copy "%ScriptPath%\files\*.*" "$InstallDir$"
+
+[Registry_install]
+; da wir keinen Installer nehmen, müssen ein paar notwendige Keys angelegt werden, damit sie unter 'Systemeinstellungen' > 'Software und Funktionen' auftaucht
+openkey [$RegUninstallPath$\$ProductId$]
+set "DisplayName" = REG_SZ:"$ProductId$ OPSI-Version: $ProductVersion$"
+set "DisplayIcon" = REG_SZ:"$PathToExe$"
+set "InstallLocation" = REG_SZ:"$InstallDir$"
+set "UninstallDirectory" = REG_SZ:"$InstallDir$"
+;UninstallString ist der entscheidende Eintrag, damit es überhaupt angezeigt wird!
+;da es in diesem Fall keine Deinstallationsroutine gibt, rufen wir ein VBS mit einem Hinweis auf
+set "UninstallString" = REG_SZ:'wscript "$InstallDir$\uninstall.vbs"'
+set "NoRepair" = REG_DWORD:0001
+set "NoModify" = REG_DWORD:0001
+
+[Linkfolder_install_desktopicon]
+set_basefolder common_desktopdirectory
+set_subfolder ""
+
+set_link
+ 	name: $ProductName$
+ 	target: $PathToExe$
+end_link
+
+[Linkfolder_install_startmenu]
+set_basefolder common_programs
+set_subfolder $ProductName$
+
+set_link
+ 	name: $ProductName$
+ 	target: $PathToExe$
+end_link
+

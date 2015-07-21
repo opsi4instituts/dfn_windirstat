@@ -1,0 +1,53 @@
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib gmbh
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/credits/
+
+Message "Uninstalling " + $ProductName$ + " ..."
+
+if FileExists($InstallDir$)
+	comment "Found installed version, starting uninstall"
+
+    	comment "Delete files"
+    	Files_uninstall
+
+	comment "Cleanup registry"
+	Registry_uninstall /32Bit
+
+	set $DesktopIcon$ = getProductProperty("desktopicon","no")
+	if $DesktopIcon$ = "yes"
+		comment "Create common desktop icon"
+		Linkfolder_uninstall_desktopicon	
+	endif
+
+	set $StartmenuEntry$ = getProductProperty("startmenuentry","no")
+	if $StartmenuEntry$ = "yes"
+		comment "Create common startmenu entry"
+		Linkfolder_uninstall_startmenu	
+	endif	
+
+	comment "include custom post deinstall file"
+	set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
+	if not ($CustomPostDeinstall$ = "none")
+		if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
+			include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
+		endif
+	endif	
+	
+endif
+
+[Files_uninstall]
+delete -sf "$InstallDir$\"
+
+[Registry_uninstall]
+deletekey [$RegUninstallPath$\$ProductId$]
+
+[Linkfolder_uninstall_desktopicon]
+set_basefolder common_desktopdirectory
+set_subfolder ""
+delete_element $ProductName$
+
+[Linkfolder_uninstall_startmenu]
+set_basefolder common_programs
+delete_subfolder $ProductName$
+
