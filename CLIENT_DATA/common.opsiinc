@@ -26,6 +26,6 @@ Set $InstallDir$      = "%ProgramFiles32Dir%\" + $ProductId$
 Set $RegUninstallPath$ = "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 Set $MinimumSpace$    = "2 MB"
 Set $ProductVersion$    = "%installingProdVersion%"
-Set $PathToExe$ = $InstallDir$ + "\" + $ProductId$ + ".exe"
+Set $PathToExe$ = $InstallDir$ + "\windirstat.exe"
 ; ----------------------------------------------------------------
 
