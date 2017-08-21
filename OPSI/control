@@ -1,5 +1,5 @@
 [Package]
-version: 1
+version: 2
 depends: 
 incremental: False
 
@@ -7,7 +7,7 @@ incremental: False
 type: localboot
 id: dfn_windirstat
 name: WinDirStat
-description: Werkzeug zur Visualisierung und Reduzierung der Speicherplatzbelegung
+description: Werkzeug zur Visualisierung und Reduzierung der Speicherplatzbelegung. [Disk usage statistics viewer and cleanup tool]
 advice: 
 version: 1.1.2
 priority: 0
@@ -22,22 +22,22 @@ customScript:
 userLoginScript: 
 
 [ProductProperty]
-type: unicode
-name: desktopicon
-multivalue: False
-editable: False
-description: Icon on Desktop
-values: ["no", "yes"]
-default: ["no"]
+type: bool
+name: desktop-link
+description: Link on Desktop?
+default: False
 
 [ProductProperty]
-type: unicode
+type: bool
 name: startmenuentry
-multivalue: False
-editable: False
-description: Startmenu entry (Directory & Link) in 'common-programs'
-values: ["no", "yes"]
-default: ["yes"]
+description: Startmenu entry (Directory & Link) in 'common-programs'?
+default: True
+
+[ProductProperty]
+type: bool
+name: context-menu
+description: Entry in context menu?
+default: True
 
 [ProductProperty]
 type: unicode
@@ -58,6 +58,15 @@ values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
 [Changelog]
+windirstat (1.1.2-2)
+	* diverse Änderungen (u.a. Registry-Suche)
+	* alte uib Copyrights (Überbleibsel von opsi-template) entfernt
+	* Desktopicon -> Desktoplink gem. o4i-Richtlinie angepasst
+	* o4i-Logo hinzugefügt, eigenes Logo möglich
+	* Englische Beschreibung gem. o4i-Richtlinie
+	* ProductProperty context-menu hinzugefügt.
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 21.08.2017
+
 windirstat (1.1.2-1)
 	* initiales DFN-Repository-Paket
  -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 29.06.2015

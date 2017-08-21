@@ -4,28 +4,58 @@ DefVar $LogDir$
 DefVar $ProductId$
 DefVar $ProductName$
 DefVar $InstallDir$
-DefVar $RegUninstallPath$
+DefVar $UninstallDir$
+DefVar $UninstallProgram$
+DefVar $RegPathUninstall$
+DefStringList $ResultList$
+DefVar $RegId$
+DefVar $SearchPattern$
 DefVar $ProductVersion$
 DefVar $MinimumSpace$
 DefVar $PathToExe$
-DefVar $DesktopIcon$
+DefVar $DesktopLink$
 DefVar $StartmenuEntry$
 DefVar $CustomPostInstall$
 DefVar $CustomPostDeinstall$
 DefVar $MSVersion$
 DefVar $INST_SystemType$
+DefStringList $FileInfoList$
+DefVar $InstalledVersion$
+DefVar $ContextMenu$
 
 Set $LogDir$ = "%SystemDrive%\tmp"
 Set $INST_SystemType$ = GetSystemType
 Set $MSVersion$	 = GetMsVersionInfo
 
+Set $ProductVersion$	= takestring (0, splitString("%installingProdVersion%", "-"))
+Set $DesktopLink$ = getProductProperty("desktop-link","False")
+Set $StartmenuEntry$ = getProductProperty("startmenuentry","True")
+Set $ContextMenu$ = getProductProperty("context-menu","True")
+
 ; ----------------------------------------------------------------
-Set $ProductId$       = "dfn_windirstat"
+Set $ProductId$       = "windirstat"
 Set $ProductName$ = "WinDirStat"
 Set $InstallDir$      = "%ProgramFiles32Dir%\" + $ProductId$
-Set $RegUninstallPath$ = "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 Set $MinimumSpace$    = "2 MB"
-Set $ProductVersion$    = "%installingProdVersion%"
 Set $PathToExe$ = $InstallDir$ + "\windirstat.exe"
+Set $UninstallProgram$ = $InstallDir$ + "\uninstall.exe"
 ; ----------------------------------------------------------------
 
+include_append "section_sub_search_registry32_uninstall_keys.opsiinc"
+
+if not ($MSVersion$ = "6.1" OR $MSVersion$ = "10.0")
+	Logwarning "Only tested with windows 7 and 10! Please report to the maintainer successful installation on other windows versions."
+endif
+if not ($INST_SystemType$ = "64 Bit System")
+	Logwarning "Only tested with 64 bit version! Please report to the maintainer successful installation on other windows versions."
+endif
+
+comment "Show product picture"
+if (FileExists("%ScriptPath%\..\lib\icons\%installingProdName%.png"))
+       comment "logo at local library/icons found."
+       ShowBitmap "%ScriptPath%\..\lib\icons\%installingProdName%.png" $ProductName$
+else
+       comment "no logo at local library/icons, use from ScriptPath ..."
+       ShowBitmap "%ScriptPath%\o4i.png" $ProductName$
+endif

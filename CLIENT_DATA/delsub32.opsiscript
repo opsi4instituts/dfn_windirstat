@@ -1,48 +1,71 @@
-; Copyright (c) uib gmbh (www.uib.de)
-; This sourcecode is owned by uib gmbh
-; and published under the Terms of the General Public License.
-; credits: http://www.opsi.org/credits/
+killtask "windirstat.exe"
 
-Message "Uninstalling " + $ProductName$ + " ..."
+Message "Uninstalling " + $ProductName$
 
-if FileExists($InstallDir$)
-	comment "Found installed version, starting uninstall"
+Set $SearchPattern$ = $ProductId$
+; Parameter: $SearchPattern$ Suchbegriff in Registry
+Sub_search_registry32_uninstall_keys
+; Rückgabewert: $ResultList$ gefundene Einträge
 
-    	comment "Delete files"
-    	Files_uninstall
-
-	comment "Cleanup registry"
-	Registry_uninstall /32Bit
-
-	set $DesktopIcon$ = getProductProperty("desktopicon","no")
-	if $DesktopIcon$ = "yes"
-		comment "Create common desktop icon"
-		Linkfolder_uninstall_desktopicon	
-	endif
-
-	set $StartmenuEntry$ = getProductProperty("startmenuentry","no")
-	if $StartmenuEntry$ = "yes"
-		comment "Create common startmenu entry"
-		Linkfolder_uninstall_startmenu	
+if ( count ($ResultList$) = "0" )
+	comment "No installations of " + $SearchPattern$ + " found in registry."
+	; installations with nsis installer does not create registry entry in $RegPathUninstall$!
+	if FileExists ($UninstallProgram$)
+		comment "Found " + $UninstallProgram$ + ". Uninstalling with it"
+		Winbatch_uninstall
 	endif	
+else
+	Set $RegId$ = takeString(0, $ResultList$)
+	if (contains(GetRegistryStringValue32("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayName"), "OPSI"))
+		comment "Found OPSI-Installation-Registry-Entry"
+		; dont overwrite $InstallDir$ for installation, therefore we use $UninstallDir$
+		Set $UninstallDir$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\" + $RegId$ + "] InstallLocation")
 
-	comment "include custom post deinstall file"
-	set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
-	if not ($CustomPostDeinstall$ = "none")
-		if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
-			include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
+	    comment "Delete files"
+	    Files_uninstall
+
+		comment "Cleanup registry"
+		Registry_uninstall /32Bit
+
+		if $DesktopLink$ = "true"
+			comment "Create common desktop link"
+			Linkfolder_delete_desktoplink	
 		endif
-	endif	
-	
+
+		if $StartmenuEntry$ = "yes"
+			comment "Create common startmenu entry"
+			Linkfolder_uninstall_startmenu	
+		endif	
+		
+		if $ContextMenu$ = "True"
+			comment "Create context menu entries"
+			Registry_uninstall_context-menu
+		endif		
+
+		comment "include custom post deinstall file"
+		set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
+		if not ($CustomPostDeinstall$ = "none")
+			if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
+				include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
+			endif
+		endif	
+	endif
 endif
 
+[Winbatch_uninstall]
+"$UninstallProgram$" /S
+
 [Files_uninstall]
-delete -sf "$InstallDir$\"
+delete -sf "$UninstallDir$\"
 
 [Registry_uninstall]
-deletekey [$RegUninstallPath$\$ProductId$]
+deletekey [$RegPathUninstall$\$RegId$]
 
-[Linkfolder_uninstall_desktopicon]
+[Registry_uninstall_context-menu]
+deletekey [HKEY_CLASSES_ROOT\Directory\shell\$ProductId$]
+deletekey [HKEY_CLASSES_ROOT\Drive\shell\$ProductId$]
+
+[Linkfolder_delete_desktoplink]
 set_basefolder common_desktopdirectory
 set_subfolder ""
 delete_element $ProductName$

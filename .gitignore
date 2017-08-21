@@ -1,4 +1,6 @@
 *.opsi
 *.bak
+*.md5
 custom
 orig
+files
