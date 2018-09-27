@@ -1,7 +1,6 @@
 [Package]
-version: 2
+version: 3
 depends: 
-incremental: False
 
 [Product]
 type: localboot
@@ -58,7 +57,12 @@ values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
 [Changelog]
-windirstat (1.1.2-2)
+dfn_windirstat (1.1.2-3)
+	* neues o4i-Logo
+	* neue Registrysuche (https://github.com/opsi4instituts/lib, winst-Version 4.12.0.16 Voraussetzung)
+-- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 27.09.2018
+
+dfn_windirstat (1.1.2-2)
 	* diverse Änderungen (u.a. Registry-Suche)
 	* alte uib Copyrights (Überbleibsel von opsi-template) entfernt
 	* Desktopicon -> Desktoplink gem. o4i-Richtlinie angepasst
@@ -67,7 +71,7 @@ windirstat (1.1.2-2)
 	* ProductProperty context-menu hinzugefügt.
  -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 21.08.2017
 
-windirstat (1.1.2-1)
+dfn_windirstat (1.1.2-1)
 	* initiales DFN-Repository-Paket
  -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 29.06.2015
 

@@ -65,7 +65,7 @@ copy "%ScriptPath%\files\*.*" "$InstallDir$"
 
 [Registry_install]
 ; da wir keinen Installer nehmen, müssen ein paar notwendige Keys angelegt werden, damit sie unter 'Systemeinstellungen' > 'Software und Funktionen' auftaucht
-openkey [$RegPathUninstall$\$ProductName$]
+openkey [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$ProductName$]
 set "DisplayName" = REG_SZ:"$ProductName$ (OPSI-Version: %installingProdVersion%)"
 set "DisplayIcon" = REG_SZ:"$PathToExe$"
 set "DisplayVersion" = REG_SZ:"$ProductVersion$"

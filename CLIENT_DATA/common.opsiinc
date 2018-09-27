@@ -1,4 +1,4 @@
-requiredWinstVersion >= "4.11.4.6"
+requiredWinstVersion >= "4.12.0.16"
 
 DefVar $LogDir$
 DefVar $ProductId$
@@ -6,10 +6,10 @@ DefVar $ProductName$
 DefVar $InstallDir$
 DefVar $UninstallDir$
 DefVar $UninstallProgram$
-DefVar $RegPathUninstall$
+DefVar $ExitCode$
 DefStringList $ResultList$
 DefVar $RegId$
-DefVar $SearchPattern$
+DefVar $RegBitScope$
 DefVar $ProductVersion$
 DefVar $MinimumSpace$
 DefVar $PathToExe$
@@ -36,13 +36,14 @@ Set $ContextMenu$ = getProductProperty("context-menu","True")
 Set $ProductId$       = "windirstat"
 Set $ProductName$ = "WinDirStat"
 Set $InstallDir$      = "%ProgramFiles32Dir%\" + $ProductId$
-Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 Set $MinimumSpace$    = "2 MB"
 Set $PathToExe$ = $InstallDir$ + "\windirstat.exe"
 Set $UninstallProgram$ = $InstallDir$ + "\uninstall.exe"
 ; ----------------------------------------------------------------
 
-include_append "section_sub_search_registry32_uninstall_keys.opsiinc"
+include_append "section_sub_check_exitcode.opsiinc"
+; Library registry search uninstall keys (local functions)
+importLib "func_search_registry_uninstall_keys.opsiinc"
 
 if not ($MSVersion$ = "6.1" OR $MSVersion$ = "10.0")
 	Logwarning "Only tested with windows 7 and 10! Please report to the maintainer successful installation on other windows versions."

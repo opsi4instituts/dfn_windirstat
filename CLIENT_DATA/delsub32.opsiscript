@@ -2,24 +2,27 @@ killtask "windirstat.exe"
 
 Message "Uninstalling " + $ProductName$
 
-Set $SearchPattern$ = $ProductId$
-; Parameter: $SearchPattern$ Suchbegriff in Registry
-Sub_search_registry32_uninstall_keys
-; Rückgabewert: $ResultList$ gefundene Einträge
+; Ergebnis ist StringList (mehrere Einträge möglich);
+; in einer Zeile werden drei Ergebnisse mit "|" abgetrennt geliefert: Registrykey (mit Pfad) | Bereich Registry (kann direkt getRegistryValue übergeben werden | DisplayName
+; z.B. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Test64|64bit|Test Registry Entry64
+Set $ResultList$ = SearchRegistryUninstallKeys($ProductName$)
 
 if ( count ($ResultList$) = "0" )
-	comment "No installations of " + $SearchPattern$ + " found in registry."
+	comment "No installations of " + $ProductName$ + " found in registry."
 	; installations with nsis installer does not create registry entry in $RegPathUninstall$!
 	if FileExists ($UninstallProgram$)
 		comment "Found " + $UninstallProgram$ + ". Uninstalling with it"
 		Winbatch_uninstall
+		Sub_check_exitcode
 	endif	
 else
-	Set $RegId$ = takeString(0, $ResultList$)
-	if (contains(GetRegistryStringValue32("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayName"), "OPSI"))
+	Set $RegId$ = takeString (0,splitString(takeString(0,$ResultList$), '|'))
+	Set $RegBitScope$ = takeString (1,splitString(takeString(0,$ResultList$), '|'))
+
+	if (contains(GetRegistryValue($RegId$, "DisplayName", $RegBitScope$), "OPSI"))
 		comment "Found OPSI-Installation-Registry-Entry"
 		; dont overwrite $InstallDir$ for installation, therefore we use $UninstallDir$
-		Set $UninstallDir$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\" + $RegId$ + "] InstallLocation")
+		Set $UninstallDir$ = GetRegistryValue($RegId$, "InstallLocation", $RegBitScope$)
 
 	    comment "Delete files"
 	    Files_uninstall
@@ -59,7 +62,7 @@ endif
 delete -sf "$UninstallDir$\"
 
 [Registry_uninstall]
-deletekey [$RegPathUninstall$\$RegId$]
+deletekey [$RegId$]
 
 [Registry_uninstall_context-menu]
 deletekey [HKEY_CLASSES_ROOT\Directory\shell\$ProductId$]
